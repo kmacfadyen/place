@@ -1,4 +1,11 @@
-import { useState } from 'react'
+import Dashboard from "./pages/Dashboard";
+
+export default function App() {
+  return <Dashboard />;
+}
+
+
+/** import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -32,4 +39,5 @@ function App() {
   )
 }
 
-export default App
+export default App 
+*/
