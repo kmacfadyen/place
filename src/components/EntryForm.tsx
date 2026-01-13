@@ -3,8 +3,10 @@ import { ENTRY_TYPES, makeEntry } from "../lib/types";
 import type { Entry, EntryTypeId } from "../lib/types";
 
 type EntryFormProps = {
+  userId: string;
   onAdd: (entry: Entry) => void;
 };
+
 
 function nowLocalInputValue(): string {
   // datetime-local expects "YYYY-MM-DDTHH:mm"
@@ -15,7 +17,7 @@ function nowLocalInputValue(): string {
   )}:${pad(d.getMinutes())}`;
 }
 
-export default function EntryForm({ onAdd }: EntryFormProps) {
+export default function EntryForm({ userId, onAdd }: EntryFormProps) {
   const defaultType = useMemo<EntryTypeId>(() => ENTRY_TYPES[0]?.id ?? "walk", []);
   const [typeId, setTypeId] = useState<EntryTypeId>(defaultType);
   const [dateLocal, setDateLocal] = useState<string>(nowLocalInputValue());
@@ -27,6 +29,7 @@ export default function EntryForm({ onAdd }: EntryFormProps) {
 
     const dateISO = new Date(dateLocal).toISOString();
     const entry = makeEntry({
+      userId,
       typeId,
       dateISO,
       notes: notes.trim(),
