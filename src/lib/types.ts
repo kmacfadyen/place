@@ -8,8 +8,17 @@ export type EntryTypeId =
   | "training"
   | "other";
 
+  export type User = {
+  id: string;
+  name: string;
+  email: string;
+  createdAtISO: string;
+};
+
+
 export type Entry = {
   id: string;
+  userId: string;
   typeId: EntryTypeId;
   dateISO: string;
   notes?: string;
@@ -29,6 +38,7 @@ export const ENTRY_TYPES: { id: EntryTypeId; label: string }[] = [
 ];
 
 export type MakeEntryInput = {
+  userId: string;
   typeId: EntryTypeId;
   dateISO: string;
   notes?: string;
@@ -38,6 +48,7 @@ export type MakeEntryInput = {
 export function makeEntry(input: MakeEntryInput): Entry {
   return {
     id: crypto.randomUUID(),
+    userId: input.userId,
     typeId: input.typeId,
     dateISO: input.dateISO,
     notes: input.notes ?? "",
