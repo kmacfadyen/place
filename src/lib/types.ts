@@ -13,6 +13,7 @@ export type EntryTypeId =
   id: string;
   name: string;
   email: string;
+  passwordHash: string;
   createdAtISO: string;
 };
 

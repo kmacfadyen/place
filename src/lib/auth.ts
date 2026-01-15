@@ -1,23 +1,24 @@
 import type { User } from "./types";
 import { loadState, saveState } from "./storage";
+import { hashPassword } from "./crypto";
 
-export function createUser(name: string, email: string): User {
+export async function createUser(name: string, email: string, password: string): Promise<User> {
   const state = loadState();
 
   const user: User = {
     id: crypto.randomUUID(),
     name: name.trim(),
     email: email.trim().toLowerCase(),
+    passwordHash: await hashPassword(password),
     createdAtISO: new Date().toISOString(),
   };
 
-  const next = {
+  saveState({
     ...state,
     users: [user, ...state.users],
     currentUserId: user.id,
-  };
+  });
 
-  saveState(next);
   return user;
 }
 
@@ -26,7 +27,11 @@ export function setCurrentUser(userId: string | null) {
   saveState({ ...state, currentUserId: userId });
 }
 
-export function getCurrentUser(): User | null {
+export async function verifyUserPassword(userId: string, password: string): Promise<boolean> {
   const state = loadState();
-  return state.users.find((u) => u.id === state.currentUserId) ?? null;
+  const user = state.users.find((u) => u.id === userId);
+  if (!user) return false;
+
+  const attemptedHash = await hashPassword(password);
+  return attemptedHash === user.passwordHash;
 }

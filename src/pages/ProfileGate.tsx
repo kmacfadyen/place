@@ -8,6 +8,12 @@ type Props = {
 };
 
 export default function ProfileGate({ onAuthed }: Props) {
+  const [password, setPassword] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
+  
+
   const [users, setUsers] = useState<User[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,14 +30,24 @@ export default function ProfileGate({ onAuthed }: Props) {
     setUsers(loadState().users);
   }
 
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+  async function handleCreate(e: React.FormEvent) {
+  e.preventDefault();
+  setError("");
 
-    const user = createUser(name, email);
-    refreshUsers();
-    onAuthed(user);
+  if (!name.trim() || !email.trim() || password.length < 6) {
+    setError("Please enter name, email, and a password (6+ characters).");
+    return;
   }
+
+  const user = await createUser(name, email, password);
+  refreshUsers();
+  onAuthed(user);
+
+  setName("");
+  setEmail("");
+  setPassword("");
+}
+
 
   function handleSelect(user: User) {
     setCurrentUser(user.id);
@@ -55,9 +71,17 @@ export default function ProfileGate({ onAuthed }: Props) {
                   <div style={{ fontWeight: 700 }}>{u.name}</div>
                   <div style={{ fontSize: 13, opacity: 0.8 }}>{u.email}</div>
                 </div>
-                <button type="button" onClick={() => handleSelect(u)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError("");
+                    setSelectedUserId(u.id);
+                    setLoginPassword("");
+                  }}
+                >
                   Use profile
                 </button>
+
               </li>
             ))}
           </ul>
