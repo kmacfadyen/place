@@ -1,6 +1,7 @@
 export type EntryTypeId =
   | "walk"
   | "vet"
+  | "daycare"
   | "treats"
   | "food"
   | "grooming"
@@ -29,6 +30,7 @@ export type Entry = {
 export const ENTRY_TYPES: { id: EntryTypeId; label: string }[] = [
   { id: "walk", label: "Walk" },
   { id: "vet", label: "Vet" },
+  { id: "daycare", label: "Daycare" },
   { id: "treats", label: "Treats" },
   { id: "food", label: "Food" },
   { id: "grooming", label: "Grooming" },
