@@ -5,6 +5,8 @@ import FilterBar from "../components/FilterBar";
 import { loadState, saveState } from "../lib/storage";
 import { setCurrentUser } from "../lib/auth";
 import type { Entry, EntryTypeId, User } from "../lib/types";
+import { changePassword } from "../lib/auth";
+
 
 type FilterType = "all" | EntryTypeId;
 
@@ -16,6 +18,11 @@ type Props = {
 export default function Dashboard({ user, onLogout }: Props) {
   const [entries, setEntries] = useState<Entry[]>(() => loadState().entries);
   const [filterTypeId, setFilterTypeId] = useState<FilterType>("all");
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [pwMsg, setPwMsg] = useState<string | null>(null);
+  const [pwErr, setPwErr] = useState<string | null>(null);
+
 
   useEffect(() => {
     const state = loadState();
@@ -59,6 +66,59 @@ export default function Dashboard({ user, onLogout }: Props) {
       </header>
 
       <EntryForm userId={user.id} onAdd={handleAdd} />
+
+      <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
+  <h2 style={{ marginTop: 0 }}>Change password</h2>
+
+  {pwErr ? <p style={{ color: "crimson", marginTop: 0 }}>{pwErr}</p> : null}
+  {pwMsg ? <p style={{ color: "green", marginTop: 0 }}>{pwMsg}</p> : null}
+
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      setPwErr(null);
+      setPwMsg(null);
+
+      const result = await changePassword(user.id, currentPw, newPw);
+
+      if (!result.ok) {
+        setPwErr(result.reason);
+        return;
+      }
+
+      setPwMsg("Password updated.");
+      setCurrentPw("");
+      setNewPw("");
+    }}
+    style={{ display: "grid", gap: 12, maxWidth: 420 }}
+  >
+    <label style={{ display: "grid", gap: 6 }}>
+      Current password
+      <input
+        type="password"
+        value={currentPw}
+        onChange={(e) => setCurrentPw(e.target.value)}
+        autoComplete="current-password"
+        required
+      />
+    </label>
+
+    <label style={{ display: "grid", gap: 6 }}>
+      New password
+      <input
+        type="password"
+        value={newPw}
+        onChange={(e) => setNewPw(e.target.value)}
+        autoComplete="new-password"
+        minLength={6}
+        required
+      />
+    </label>
+
+    <button type="submit">Update password</button>
+  </form>
+</section>
+
 
       <section>
         <FilterBar filterTypeId={filterTypeId} setFilterTypeId={setFilterTypeId} />

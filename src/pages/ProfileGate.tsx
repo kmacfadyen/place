@@ -59,10 +59,10 @@ if (password.length < 6) {
 }
 
 
-  function handleSelect(user: User) {
-    setCurrentUser(user.id);
-    onAuthed(user);
-  }
+//   function handleSelect(user: User) {
+//     setCurrentUser(user.id);
+//     onAuthed(user);
+//   }
 
   function handleDeleteUser(userId: string) {
   const state = loadState();
