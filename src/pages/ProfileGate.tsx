@@ -38,10 +38,16 @@ export default function ProfileGate({ onAuthed }: Props) {
   e.preventDefault();
   setError("");
 
-  if (!name.trim() || !email.trim() || password.length < 6) {
-    setError("Please enter name, email, and a password (6+ characters).");
-    return;
-  }
+  if (!name.trim() || !email.trim()) {
+  setError("Please enter a name and email.");
+  return;
+}
+
+if (password.length < 6) {
+  setError("Password must be at least 6 characters.");
+  return;
+}
+
 
   const user = await createUser(name, email, password);
   refreshUsers();
@@ -87,6 +93,20 @@ export default function ProfileGate({ onAuthed }: Props) {
         <h1 style={{ marginBottom: 6 }}>Dog Tracker</h1>
         <p style={{ marginTop: 0, opacity: 0.8 }}>Choose a profile or create a new one.</p>
       </header>
+
+      {error ? (
+        <div
+            style={{
+                border: "1px solid #f5c2c7",
+                background: "#f8d7da",
+                padding: 12,
+                borderRadius: 10,
+            }}
+        >
+          {error}
+        </div>
+        ) : null}
+
 
       {users.length > 0 && (
         <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -178,19 +198,23 @@ export default function ProfileGate({ onAuthed }: Props) {
         <form onSubmit={handleCreate} style={{ display: "grid", gap: 12 }}>
           <label style={{ display: "grid", gap: 6 }}>
             Name
-            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <input value={name} onChange={(e) => setName(e.target.value)} required />
           </label>
           <label style={{ display: "grid", gap: 6 }}>
             Email
-            <input value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
           <label style={{ display: "grid", gap: 6 }}>
   Password
   <input
-    type="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-  />
+  type="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  minLength={6}
+  required
+  autoComplete="new-password"
+/>
+
 </label>
 
           <button type="submit">Create profile</button>
