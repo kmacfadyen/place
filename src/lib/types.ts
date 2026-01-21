@@ -17,10 +17,28 @@ export type EntryTypeId =
   createdAtISO: string;
 };
 
+export type Dog = {
+  id: string;
+  name: string;
+  breed?: string;
+  birthdayISO?: string;
+  createdAtISO: string;
+};
+
+export type DogMemberRole = "owner" | "caregiver";
+
+export type DogMember = {
+  dogId: string;
+  userId: string;
+  role: DogMemberRole;
+  createdAtISO: string;
+};
+
 
 export type Entry = {
   id: string;
   userId: string;
+  dogId: string;
   typeId: EntryTypeId;
   dateISO: string;
   notes?: string;
@@ -42,6 +60,7 @@ export const ENTRY_TYPES: { id: EntryTypeId; label: string }[] = [
 
 export type MakeEntryInput = {
   userId: string;
+  dogId: string;
   typeId: EntryTypeId;
   dateISO: string;
   notes?: string;
@@ -52,6 +71,7 @@ export function makeEntry(input: MakeEntryInput): Entry {
   return {
     id: crypto.randomUUID(),
     userId: input.userId,
+    dogId: input.dogId,
     typeId: input.typeId,
     dateISO: input.dateISO,
     notes: input.notes ?? "",
