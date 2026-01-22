@@ -36,9 +36,10 @@ export default function Dashboard({ user, onLogout }: Props) {
   }, [entries]);
 
   const myEntries = useMemo(
-    () => entries.filter((e) => e.userId === user.id),
-    [entries, user.id]
-  );
+  () => entries.filter((e) => e.userId === user.id && (!activeDogId || e.dogId === activeDogId)),
+  [entries, user.id, activeDogId]
+);
+
 
   function refreshDogs() {
   const nextDogs = listDogsForUser(user.id);
