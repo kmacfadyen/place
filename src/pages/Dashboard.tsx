@@ -6,6 +6,10 @@ import { loadState, saveState } from "../lib/storage";
 import { setCurrentUser } from "../lib/auth";
 import type { Entry, EntryTypeId, User } from "../lib/types";
 import { changePassword } from "../lib/auth";
+import type { Dog } from "../lib/types";
+import DogSwitcher from "../components/DogSwitcher";
+import DogManager from "../components/DogManager";
+import { listDogsForUser, getActiveDogId, setActiveDogId } from "../lib/dogs";
 
 
 type FilterType = "all" | EntryTypeId;
@@ -22,6 +26,8 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [newPw, setNewPw] = useState("");
   const [pwMsg, setPwMsg] = useState<string | null>(null);
   const [pwErr, setPwErr] = useState<string | null>(null);
+  const [dogs, setDogs] = useState<Dog[]>(() => listDogsForUser(user.id));
+  const [activeDogId, setActiveDog] = useState<string | null>(() => getActiveDogId(user.id));
 
 
   useEffect(() => {
@@ -33,6 +39,19 @@ export default function Dashboard({ user, onLogout }: Props) {
     () => entries.filter((e) => e.userId === user.id),
     [entries, user.id]
   );
+
+  function refreshDogs() {
+  const nextDogs = listDogsForUser(user.id);
+  setDogs(nextDogs);
+
+  const current = getActiveDogId(user.id);
+  // If active dog got deleted/unlinked later, reset
+  const stillExists = current && nextDogs.some(d => d.id === current);
+  const nextActive = stillExists ? current : (nextDogs[0]?.id ?? null);
+
+  setActiveDog(nextActive);
+  setActiveDogId(user.id, nextActive);
+}
 
   const filtered = useMemo(() => {
     const sorted = [...myEntries].sort(
@@ -64,8 +83,24 @@ export default function Dashboard({ user, onLogout }: Props) {
         </div>
         <button type="button" onClick={handleLogout}>Log out</button>
       </header>
+      <DogSwitcher
+          dogs={dogs}
+          activeDogId={activeDogId}
+          onChange={(dogId) => {
+          setActiveDog(dogId);
+          setActiveDogId(user.id, dogId);
+        }}
+      />
+      <DogManager userId={user.id} onChanged={refreshDogs} />
 
-      <EntryForm userId={user.id} onAdd={handleAdd} />
+      {activeDogId ? (
+    <EntryForm userId={user.id} dogId={activeDogId} onAdd={handleAdd} />
+      ) : (
+        <p style={{ opacity: 0.8 }}>
+          Create or link a dog to start logging entries.
+        </p>
+      )}
+
 
       <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
   <h2 style={{ marginTop: 0 }}>Change password</h2>
