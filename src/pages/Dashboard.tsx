@@ -92,7 +92,7 @@ export default function Dashboard({ user, onLogout }: Props) {
           setActiveDogId(user.id, dogId);
         }}
       />
-      <DogManager userId={user.id} onChanged={refreshDogs} />
+      <DogManager userId={user.id} dogs={dogs} onChanged={refreshDogs} />
 
       {activeDogId ? (
     <EntryForm userId={user.id} dogId={activeDogId} onAdd={handleAdd} />
