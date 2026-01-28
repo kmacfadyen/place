@@ -19,6 +19,7 @@ export type EntryTypeId =
 
 export type Dog = {
   id: string;
+  shareCode: string;
   name: string;
   breed?: string;
   birthdayISO?: string;

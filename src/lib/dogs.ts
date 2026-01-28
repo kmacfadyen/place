@@ -1,5 +1,6 @@
 import type { Dog, DogMemberRole } from "./types";
 import { loadState, saveState } from "./storage";
+import { generateDogCode } from "./dogCode";
 
 export function listDogsForUser(userId: string): Dog[] {
   const state = loadState();
@@ -31,6 +32,7 @@ export function createDogForUser(input: {
 
   const dog: Dog = {
     id: crypto.randomUUID(),
+    shareCode: generateDogCode(input.name),
     name: input.name.trim(),
     breed: input.breed?.trim() || "",
     birthdayISO: input.birthdayISO || "",
@@ -63,17 +65,30 @@ export function createDogForUser(input: {
  * We generate a short "invite code" = dogId.
  * The other user enters it, and we create DogMember link.
  */
-export function linkDogToUserByCode(input: { userId: string; dogCode: string; role?: DogMemberRole }):
+export function linkDogToUserByCode(input: {
+  userId: string;
+  dogCode: string;
+  role?: DogMemberRole;
+}):
   | { ok: true }
   | { ok: false; reason: string } {
   const state = loadState();
-  const dogId = input.dogCode.trim();
 
-  const dog = state.dogs.find(d => d.id === dogId);
+  // user enters something like "hazel-7f2k" — normalize it
+  const code = input.dogCode.trim().toUpperCase();
+
+  // Find dog by shareCode instead of id
+  const dog = state.dogs.find((d) => d.shareCode === code);
   if (!dog) return { ok: false, reason: "Dog not found for that code." };
 
-  const exists = state.dogMembers.some(m => m.userId === input.userId && m.dogId === dogId);
-  if (exists) return { ok: false, reason: "That dog is already linked to your account." };
+  const dogId = dog.id;
+
+  const exists = state.dogMembers.some(
+    (m) => m.userId === input.userId && m.dogId === dogId
+  );
+  if (exists) {
+    return { ok: false, reason: "That dog is already linked to your account." };
+  }
 
   const next = {
     ...state,
@@ -95,3 +110,4 @@ export function linkDogToUserByCode(input: { userId: string; dogCode: string; ro
   saveState(next);
   return { ok: true };
 }
+
